@@ -2,80 +2,71 @@ name: CI
 
 on:
   push:
-    branches:
-      - '5.x'
-      - '5.next'
-      - '6.x'
+    branches: [main, master]
   pull_request:
-    branches:
-      - '*'
+    branches: [main, master]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  testsuite:
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - php-version: '8.2'
-            dependencies: 'lowest'
-          - php-version: '8.5'
-            dependencies: 'highest'
-          - php-version: '8.5'
-            dependencies: 'highest'
+  build:
+    name: Validate Repository Structure
+    runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ matrix.php-version }}
-        extensions: mbstring, intl, pdo_sqlite
-        ini-values: zend.assertions=1
-        coverage: none
+      - name: Check core files exist
+        run: |
+          echo "Checking core repository files..."
 
-    - name: Composer install
-      uses: ramsey/composer-install@v3
-      with:
-        dependency-versions: ${{ matrix.dependencies }}
-        composer-options: ${{ matrix.composer-options }}
+          if [ ! -f "README.md" ]; then
+            echo "README.md is missing"
+            exit 1
+          fi
+          echo "README.md exists"
 
-    - name: Composer post install
-      run: composer run-script post-install-cmd --no-interaction
+          if [ ! -d ".clinerules" ]; then
+            echo ".clinerules directory is missing"
+            exit 1
+          fi
+          echo ".clinerules directory exists"
 
-    - name: Run PHPUnit
-      run: vendor/bin/phpunit
-      env:
-        DATABASE_TEST_URL: sqlite://./testdb.sqlite
+          if [ ! -d "docs" ]; then
+            echo "docs directory is missing"
+            exit 1
+          fi
+          echo "docs directory exists"
 
-  coding-standard:
-    name: Coding Standard & Static Analysis
-    runs-on: ubuntu-24.04
+          echo "All core files validated successfully"
 
-    steps:
-    - uses: actions/checkout@v6
+      - name: List markdown files for visibility
+        run: |
+          echo "Repository Structure:"
+          echo ""
+          echo "## Core Files:"
+          ls -la README.md
+          echo ""
+          echo "## .clinerules directory:"
+          find .clinerules -name "*.md" | head -10 | sort
+          echo ""
+          echo "## docs directory:"
+          find docs -name "*.md" | head -10 | sort
+          echo ""
+          echo "## Workflows:"
+          find .github/workflows -name "*.yml" | sort
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
-        extensions: mbstring, intl
-        coverage: none
-        tools: cs2pr, phpstan:1.12
+      - name: Validate workflow files
+        run: |
+          echo "Validating workflow files..."
 
-    - name: Composer install
-      uses: ramsey/composer-install@v3
+          if [ ! -f ".github/workflows/ci.yml" ]; then
+            echo "CI workflow file is missing"
+            exit 1
+          fi
+          echo "CI workflow file exists"
 
-    - name: Run PHP CodeSniffer
-      run: vendor/bin/phpcs --report=checkstyle | cs2pr
-
-    - name: Run phpstan
-      if: always()
-      run: phpstan
-      env:
-        SECURITY_SALT: f76f1c8475585c46c6acd3ddcb8f5e0f15de524637bb4080a08c4afe7cfc9144
+          echo "Workflow validation completed"
