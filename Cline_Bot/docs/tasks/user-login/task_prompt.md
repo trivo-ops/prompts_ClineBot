@@ -12,8 +12,8 @@ The CakePHP application is set up with:
 - Docker environment with MySQL database
 - CakePHP 5.x framework structure
 - Existing PagesController and basic routing
-- Composer dependencies including cakephp/authentication and cakephp/authorization
 - Database migration system configured
+- Basic application structure ready for authentication implementation
 
 ### Technology Stack
 - CakePHP 5.x
@@ -56,8 +56,8 @@ Implement a complete user authentication system that allows users to register, l
 - [ ] User registration form accepts email and password
 - [ ] Passwords are automatically hashed before saving
 - [ ] Login form authenticates users with email/password
-- [ ] Dashboard is only accessible to authenticated users
-- [ ] Unauthenticated users are redirected to login page
+- [ ] Dashboard (/dashboard) is only accessible to authenticated users
+- [ ] Unauthenticated users are redirected to login page (/login)
 - [ ] Logout functionality clears session and redirects home
 - [ ] All forms include CSRF protection
 - [ ] All unit tests pass

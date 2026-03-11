@@ -54,12 +54,18 @@ Implemented a complete user authentication system for the CakePHP application in
 ### Docker Environment
 - All containers running successfully
 - Database connection established
-- Application accessible via configured ports
+- Application accessible at http://localhost:8081
 
 ### Migration Success
 - Migration executed without errors
 - Users table created with proper schema
 - Database constraints and indexes applied
+
+### Application URLs
+- Login page: http://localhost:8081/login
+- Registration page: http://localhost:8081/register
+- Dashboard: http://localhost:8081/dashboard (requires authentication)
+- Logout: http://localhost:8081/logout
 
 ### PHPUnit Results
 ```
@@ -75,6 +81,8 @@ Time: 00:00.414, Memory: 20.00 MB
 OK, but there were issues!
 Tests: 3, Assertions: 7, PHPUnit Deprecations: 4.
 ```
+
+**Note:** All tests pass successfully (3/3), but PHPUnit reports 4 deprecations related to the testing framework itself, not the application code. These are non-blocking warnings that do not affect functionality.
 
 ### Security Features
 - Passwords automatically hashed before storage

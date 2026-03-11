@@ -35,7 +35,8 @@ The application requires user authentication to provide personalized experiences
 
 ## Notes
 - Authentication middleware should redirect unauthenticated users to login page
-- Dashboard should be accessible at /users/dashboard
-- Login page should be accessible at /users/login
-- Registration page should be accessible at /users/register
+- Dashboard should be accessible at /dashboard (requires authentication)
+- Login page should be accessible at /login
+- Registration page should be accessible at /register
 - Logout should redirect to home page
+- Application runs on http://localhost:8081

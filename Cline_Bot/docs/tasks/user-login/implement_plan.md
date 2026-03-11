@@ -99,9 +99,9 @@ CREATE TABLE users (
 ## Tests to Write
 
 ### UsersControllerTest
-- `testLogin()` — GET /users/login returns 200 and contains 'Login'
-- `testRegister()` — GET /users/register returns 200 and contains 'Register'
-- `testDashboardRequiresAuthentication()` — GET /users/dashboard redirects to login for unauthenticated users
+- `testLogin()` — GET /login returns 200 and contains 'Login'
+- `testRegister()` — GET /register returns 200 and contains 'Register'
+- `testDashboardRequiresAuthentication()` — GET /dashboard redirects to login for unauthenticated users
 
 ---
 
