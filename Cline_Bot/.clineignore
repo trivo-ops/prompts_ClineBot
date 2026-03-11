@@ -1,0 +1,8 @@
+/vendor
+/node_modules
+/tmp
+/logs
+.git
+coverage
+*.sql
+*.zip
