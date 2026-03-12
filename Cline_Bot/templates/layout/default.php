@@ -29,6 +29,15 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
 
     <?= $this->Html->css(['normalize.min', 'milligram.min', 'fonts', 'cake']) ?>
 
+    <?php
+    // Load auth.css only on auth pages
+    $currentController = $this->request->getParam('controller');
+    $currentAction = $this->request->getParam('action');
+    if ($currentController === 'Users' && in_array($currentAction, ['login', 'register'])) {
+        echo $this->Html->css('auth');
+    }
+    ?>
+
     <?= $this->fetch('meta') ?>
     <?= $this->fetch('css') ?>
     <?= $this->fetch('script') ?>
