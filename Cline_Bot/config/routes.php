@@ -68,6 +68,13 @@ return function (RouteBuilder $routes): void {
         $builder->connect('/logout', ['controller' => 'Users', 'action' => 'logout']);
         $builder->connect('/dashboard', ['controller' => 'Users', 'action' => 'dashboard']);
 
+        // Products routes
+        $builder->connect('/products', ['controller' => 'Products', 'action' => 'index']);
+        $builder->connect('/products/add', ['controller' => 'Products', 'action' => 'add']);
+        $builder->connect('/products/{id}', ['controller' => 'Products', 'action' => 'view']);
+        $builder->connect('/products/{id}/edit', ['controller' => 'Products', 'action' => 'edit']);
+        $builder->connect('/products/{id}/delete', ['controller' => 'Products', 'action' => 'delete']);
+
         /*
          * Connect catchall routes for all controllers.
          *
