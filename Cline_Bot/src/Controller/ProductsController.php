@@ -33,6 +33,7 @@ class ProductsController extends AppController
 
         $products = $this->paginate($this->Products);
         $this->set(compact('products'));
+        $this->viewBuilder()->setLayout('products');
     }
 
     /**
@@ -50,6 +51,7 @@ class ProductsController extends AppController
         ]);
 
         $this->set(compact('product'));
+        $this->viewBuilder()->setLayout('products');
     }
 
     /**
@@ -66,7 +68,7 @@ class ProductsController extends AppController
             $product = $this->Products->patchEntity($product, $this->request->getData());
 
             if ($this->Products->save($product)) {
-                $this->Flash->success(__('The product has been saved.'));
+                $this->Flash->success(__('The product has been saved successfully.'));
                 return $this->redirect(['action' => 'index']);
             }
 
@@ -74,6 +76,7 @@ class ProductsController extends AppController
         }
 
         $this->set(compact('product'));
+        $this->viewBuilder()->setLayout('products');
     }
 
     /**
@@ -94,7 +97,7 @@ class ProductsController extends AppController
             $product = $this->Products->patchEntity($product, $this->request->getData());
 
             if ($this->Products->save($product)) {
-                $this->Flash->success(__('The product has been updated.'));
+                $this->Flash->success(__('The product has been updated successfully.'));
                 return $this->redirect(['action' => 'index']);
             }
 
@@ -102,6 +105,7 @@ class ProductsController extends AppController
         }
 
         $this->set(compact('product'));
+        $this->viewBuilder()->setLayout('products');
     }
 
     /**

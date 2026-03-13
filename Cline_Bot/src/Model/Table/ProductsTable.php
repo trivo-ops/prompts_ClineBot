@@ -39,37 +39,49 @@ class ProductsTable extends Table
 
         $validator
             ->scalar('name')
-            ->maxLength('name', 255)
-            ->requirePresence('name', 'create')
-            ->notEmptyString('name');
+            ->maxLength('name', 255, 'Product name cannot exceed 255 characters')
+            ->requirePresence('name', 'create', 'Product name is required')
+            ->notEmptyString('name', 'Product name cannot be empty')
+            ->minLength('name', 2, 'Product name must be at least 2 characters long');
 
         $validator
             ->scalar('category')
-            ->maxLength('category', 100)
-            ->requirePresence('category', 'create')
-            ->notEmptyString('category');
+            ->maxLength('category', 100, 'Category cannot exceed 100 characters')
+            ->requirePresence('category', 'create', 'Category is required')
+            ->notEmptyString('category', 'Category cannot be empty')
+            ->minLength('category', 2, 'Category must be at least 2 characters long');
 
         $validator
-            ->decimal('price', 2)
-            ->requirePresence('price', 'create')
-            ->notEmptyString('price')
-            ->greaterThanOrEqual('price', 0, 'Price cannot be negative');
+            ->decimal('price', 2, 'Price must be a valid decimal number with up to 2 decimal places')
+            ->requirePresence('price', 'create', 'Price is required')
+            ->notEmptyString('price', 'Price cannot be empty')
+            ->greaterThanOrEqual('price', 0, 'Price cannot be negative')
+            ->greaterThan('price', 0, 'Price must be greater than zero');
 
         $validator
             ->integer('stock')
-            ->requirePresence('stock', 'create')
-            ->notEmptyString('stock')
-            ->greaterThanOrEqual('stock', 0, 'Stock cannot be negative');
+            ->requirePresence('stock', 'create', 'Stock quantity is required')
+            ->notEmptyString('stock', 'Stock quantity cannot be empty')
+            ->greaterThanOrEqual('stock', 0, 'Stock cannot be negative')
+            ->naturalNumber('stock', 'Stock must be a whole number');
 
         $validator
             ->scalar('size')
-            ->maxLength('size', 20)
-            ->allowEmptyString('size');
+            ->maxLength('size', 20, 'Size cannot exceed 20 characters')
+            ->allowEmptyString('size')
+            ->add('size', 'validSize', [
+                'rule' => ['inList', ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'One Size'], false],
+                'message' => 'Please select a valid size option'
+            ]);
 
         $validator
             ->scalar('color')
-            ->maxLength('color', 50)
-            ->allowEmptyString('color');
+            ->maxLength('color', 50, 'Color cannot exceed 50 characters')
+            ->allowEmptyString('color')
+            ->add('color', 'validColor', [
+                'rule' => ['inList', ['Red', 'Blue', 'Green', 'Black', 'White', 'Yellow', 'Purple', 'Orange', 'Pink', 'Brown', 'Gray', 'Navy', 'Beige'], false],
+                'message' => 'Please select a valid color option'
+            ]);
 
         return $validator;
     }

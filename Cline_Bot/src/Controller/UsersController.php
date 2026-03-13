@@ -54,11 +54,11 @@ class UsersController extends AppController
         // Allow both GET and POST for logout to work from browser links
         if ($result->isValid()) {
             $this->Authentication->logout();
-            return $this->redirect(['controller' => 'Pages', 'action' => 'display', 'home']);
+            return $this->redirect(['action' => 'login']);
         }
 
-        // If not authenticated, redirect to home
-        return $this->redirect(['controller' => 'Pages', 'action' => 'display', 'home']);
+        // If not authenticated, redirect to login page
+        return $this->redirect(['action' => 'login']);
     }
 
     public function dashboard()

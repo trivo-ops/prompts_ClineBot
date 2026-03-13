@@ -1,44 +1,37 @@
-<div class="products index content">
-    <h3><?= __('Products') ?></h3>
-    <div class="table-responsive">
-        <table>
-            <thead>
-                <tr>
-                    <th><?= $this->Paginator->sort('id', __('ID')) ?></th>
-                    <th><?= $this->Paginator->sort('name', __('Name')) ?></th>
-                    <th><?= $this->Paginator->sort('category', __('Category')) ?></th>
-                    <th><?= $this->Paginator->sort('price', __('Price')) ?></th>
-                    <th><?= $this->Paginator->sort('stock', __('Stock')) ?></th>
-                    <th><?= $this->Paginator->sort('size', __('Size')) ?></th>
-                    <th><?= $this->Paginator->sort('color', __('Color')) ?></th>
-                    <th><?= $this->Paginator->sort('modified', __('Modified')) ?></th>
-                    <th class="actions"><?= __('Actions') ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($products as $product): ?>
-                <tr>
-                    <td><?= $this->Number->format($product->id) ?></td>
-                    <td><?= h($product->name) ?></td>
-                    <td><?= h($product->category) ?></td>
-                    <td><?= $this->Number->format($product->price) ?></td>
-                    <td><?= $this->Number->format($product->stock) ?></td>
-                    <td><?= h($product->size) ?></td>
-                    <td><?= h($product->color) ?></td>
-                    <td><?= h($product->modified) ?></td>
-                    <td class="actions">
-                        <?= $this->Html->link(__('View'), ['action' => 'view', $product->id], ['class' => 'button view']) ?>
-                        <?= $this->Html->link(__('Edit'), ['action' => 'edit', $product->id], ['class' => 'button edit']) ?>
-                        <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $product->id], [
-                            'confirm' => __('Are you sure you want to delete # {0}?', $product->id),
-                            'class' => 'button delete'
-                        ]) ?>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+<div class="action-buttons">
+    <?= $this->Html->link(__('Add New Product'), ['action' => 'add'], ['class' => 'btn-primary']) ?>
+</div>
+
+<?php if (!empty($products)) : ?>
+    <div class="product-grid">
+        <?php foreach ($products as $product) : ?>
+            <div class="product-card">
+                <h3 class="product-name"><?= h($product->name) ?></h3>
+                <span class="product-category"><?= h($product->category) ?></span>
+
+                <div class="product-details">
+                    <div class="product-detail-item">
+                        <span class="product-detail-label">Price</span>
+                        <span class="product-detail-value">$<?= $this->Number->format($product->price, ['places' => 2]) ?></span>
+                    </div>
+                </div>
+
+                <div class="product-actions">
+                    <?= $this->Html->link(__('View'), ['action' => 'view', $product->id], ['class' => 'btn-secondary btn-small']) ?>
+                    <?= $this->Html->link(__('Edit'), ['action' => 'edit', $product->id], ['class' => 'btn-secondary btn-small']) ?>
+                    <?= $this->Form->postLink(
+                        __('Delete'),
+                        ['action' => 'delete', $product->id],
+                        [
+                            'confirm' => __('Are you sure you want to delete {0}?', $product->name),
+                            'class' => 'btn-danger btn-small'
+                        ]
+                    ) ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
     </div>
+
     <div class="paginator">
         <ul class="pagination">
             <?= $this->Paginator->first('<< ' . __('first')) ?>
@@ -49,7 +42,12 @@
         </ul>
         <p><?= $this->Paginator->counter(__('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')) ?></p>
     </div>
-    <div class="actions">
-        <?= $this->Html->link(__('New Product'), ['action' => 'add'], ['class' => 'button']) ?>
+<?php else : ?>
+    <div class="flash-message info">
+        <strong>No products found.</strong> Start by adding your first product to the catalog.
     </div>
-</div>
+
+    <div class="text-center mt-4">
+        <?= $this->Html->link(__('Add Your First Product'), ['action' => 'add'], ['class' => 'btn-primary']) ?>
+    </div>
+<?php endif; ?>
