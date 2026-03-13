@@ -53,7 +53,7 @@ class ProductsTable extends Table
             ->decimal('price', 2)
             ->requirePresence('price', 'create')
             ->notEmptyString('price')
-            ->greaterThan('price', 0, 'Price must be greater than 0');
+            ->greaterThanOrEqual('price', 0, 'Price cannot be negative');
 
         $validator
             ->integer('stock')

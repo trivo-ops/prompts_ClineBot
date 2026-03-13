@@ -1,7 +1,6 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use App\Controller\UsersController;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
 
@@ -14,6 +13,30 @@ class UsersControllerTest extends TestCase
 {
     use IntegrationTestTrait;
 
+    protected array $fixtures = [
+        'app.Users',
+    ];
+
+    /**
+     * Setup the test case.
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->enableCsrfToken();
+    }
+
+    /**
+     * Tear Down the test case.
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        parent::tearDown();
+    }
 
     /**
      * Test login method
@@ -23,7 +46,7 @@ class UsersControllerTest extends TestCase
      */
     public function testLogin(): void
     {
-        $this->get('/users/login');
+        $this->get('/login');
         $this->assertResponseOk();
         $this->assertResponseContains('Login');
     }
@@ -36,7 +59,7 @@ class UsersControllerTest extends TestCase
      */
     public function testRegister(): void
     {
-        $this->get('/users/register');
+        $this->get('/register');
         $this->assertResponseOk();
         $this->assertResponseContains('Register');
     }
@@ -49,8 +72,8 @@ class UsersControllerTest extends TestCase
      */
     public function testDashboardRequiresAuthentication(): void
     {
-        $this->get('/users/dashboard');
+        $this->get('/dashboard');
         $this->assertResponseCode(302);
-        $this->assertRedirect('/users/login?redirect=%2Fusers%2Fdashboard');
+        $this->assertRedirect('/login?redirect=%2Fdashboard');
     }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Table;
 
+use Authentication\PasswordHasher\DefaultPasswordHasher;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -40,8 +41,7 @@ class UsersTable extends Table
         $validator
             ->scalar('username')
             ->maxLength('username', 255)
-            ->requirePresence('username', 'create')
-            ->notEmptyString('username')
+            ->allowEmptyString('username')
             ->add('username', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
 
         $validator

@@ -51,21 +51,19 @@ class UsersController extends AppController
     {
         $result = $this->Authentication->getResult();
 
-        // POST request required, as logout usually happens in after submitting a form
-        if (!$this->request->is('post')) {
-            return $this->redirect(['action' => 'dashboard']);
-        }
-
+        // Allow both GET and POST for logout to work from browser links
         if ($result->isValid()) {
             $this->Authentication->logout();
             return $this->redirect(['controller' => 'Pages', 'action' => 'display', 'home']);
         }
+
+        // If not authenticated, redirect to home
+        return $this->redirect(['controller' => 'Pages', 'action' => 'display', 'home']);
     }
 
     public function dashboard()
     {
-        // This action is protected by authentication middleware
-        // Only authenticated users can access this page
+        $this->viewBuilder()->setLayout('auth');
         $user = $this->Authentication->getIdentity();
         $this->set(compact('user'));
     }

@@ -233,3 +233,48 @@
         transform: none;
     }
 }
+
+.auth-card-wide {
+    max-width: 760px;
+}
+
+.dashboard-summary {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.dashboard-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.dashboard-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0.75;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.dashboard-value {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.dashboard-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .dashboard-actions {
+        grid-template-columns: 1fr;
+    }
+}
