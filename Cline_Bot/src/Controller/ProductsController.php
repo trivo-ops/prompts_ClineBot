@@ -26,12 +26,16 @@ class ProductsController extends AppController
      */
     public function index()
     {
+        $query = $this->Products->find()
+            ->contain(['Categories']);
+
         $this->paginate = [
             'limit' => 20,
-            'order' => ['Products.name' => 'ASC']
+            'order' => ['Products.name' => 'ASC'],
         ];
 
-        $products = $this->paginate($this->Products);
+        $products = $this->paginate($query);
+
         $this->set(compact('products'));
         $this->viewBuilder()->setLayout('products');
     }
@@ -46,12 +50,10 @@ class ProductsController extends AppController
      */
     public function view($id = null)
     {
-        $product = $this->Products->get($id, [
-            'contain' => [],
-        ]);
+        $this->viewBuilder()->setLayout('products');
+        $product = $this->Products->get($id, contain: ['Categories']);
 
         $this->set(compact('product'));
-        $this->viewBuilder()->setLayout('products');
     }
 
     /**
@@ -64,6 +66,13 @@ class ProductsController extends AppController
     {
         $product = $this->Products->newEmptyEntity();
 
+        // Get list of categories for the dropdown
+        $categories = $this->Products->Categories->find('list', [
+            'keyField' => 'id',
+            'valueField' => 'name',
+            'order' => ['name' => 'ASC']
+        ])->toArray();
+
         if ($this->request->is('post')) {
             $product = $this->Products->patchEntity($product, $this->request->getData());
 
@@ -75,7 +84,7 @@ class ProductsController extends AppController
             $this->Flash->error(__('The product could not be saved. Please, try again.'));
         }
 
-        $this->set(compact('product'));
+        $this->set(compact('product', 'categories'));
         $this->viewBuilder()->setLayout('products');
     }
 
@@ -93,6 +102,13 @@ class ProductsController extends AppController
             'contain' => [],
         ]);
 
+        // Get list of categories for the dropdown
+        $categories = $this->Products->Categories->find('list', [
+            'keyField' => 'id',
+            'valueField' => 'name',
+            'order' => ['name' => 'ASC']
+        ])->toArray();
+
         if ($this->request->is(['patch', 'post', 'put'])) {
             $product = $this->Products->patchEntity($product, $this->request->getData());
 
@@ -104,7 +120,7 @@ class ProductsController extends AppController
             $this->Flash->error(__('The product could not be updated. Please, try again.'));
         }
 
-        $this->set(compact('product'));
+        $this->set(compact('product', 'categories'));
         $this->viewBuilder()->setLayout('products');
     }
 

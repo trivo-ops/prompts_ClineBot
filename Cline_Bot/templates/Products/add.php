@@ -1,6 +1,5 @@
 <div class="page-header">
     <h1 class="page-title">Add New Product</h1>
-    <p class="page-subtitle">Create a new product in your catalog</p>
 </div>
 
 <div class="action-buttons">
@@ -29,13 +28,14 @@
             </div>
 
             <div class="form-group">
-                <?= $this->Form->control('category', [
+                <?= $this->Form->control('category_id', [
                     'class' => 'form-input',
                     'label' => [
                         'text' => 'Category *',
                         'class' => 'form-label'
                     ],
-                    'placeholder' => 'Enter product category',
+                    'options' => $categories,
+                    'empty' => 'Select a category',
                     'required' => true
                 ]) ?>
             </div>

@@ -23,18 +23,24 @@ class ProductsTable extends Table
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
+
+        $this->belongsTo('Categories', [
+            'foreignKey' => 'category_id',
+            'joinType' => 'INNER',
+            'propertyName' => 'product_category'
+        ]);
     }
 
     /**
      * Default validation rules.
      *
      * @param \Cake\Validation\Validator $validator Validator instance.
-     * @return \Cake\Validation\Validator
+     * @return \Cake\Validation.Validator
      */
     public function validationDefault(Validator $validator): Validator
     {
         $validator
-            ->integer('id')
+            ->uuid('id')
             ->allowEmptyString('id', null, 'create');
 
         $validator
@@ -45,11 +51,9 @@ class ProductsTable extends Table
             ->minLength('name', 2, 'Product name must be at least 2 characters long');
 
         $validator
-            ->scalar('category')
-            ->maxLength('category', 100, 'Category cannot exceed 100 characters')
-            ->requirePresence('category', 'create', 'Category is required')
-            ->notEmptyString('category', 'Category cannot be empty')
-            ->minLength('category', 2, 'Category must be at least 2 characters long');
+            ->uuid('category_id')
+            ->requirePresence('category_id', 'create', 'Category is required')
+            ->notEmptyString('category_id', 'Category cannot be empty');
 
         $validator
             ->decimal('price', 2, 'Price must be a valid decimal number with up to 2 decimal places')
@@ -96,6 +100,9 @@ class ProductsTable extends Table
     public function buildRules(RulesChecker $rules): RulesChecker
     {
         $rules->add($rules->isUnique(['name'], 'Product name must be unique'));
+
+        // Add category existence validation in buildRules instead of validationDefault
+        $rules->add($rules->existsIn(['category_id'], 'Categories', 'Please select a valid category'));
 
         return $rules;
     }
