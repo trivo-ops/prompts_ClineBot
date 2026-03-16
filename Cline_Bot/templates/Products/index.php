@@ -12,6 +12,10 @@
 
                 <div class="product-details">
                     <div class="product-detail-item">
+                        <span class="product-detail-label">SKU</span>
+                        <span class="product-detail-value"><?= h($product->sku ?? 'N/A') ?></span>
+                    </div>
+                    <div class="product-detail-item">
                         <span class="product-detail-label">Price</span>
                         <span class="product-detail-value">$<?= $this->Number->format($product->price, ['places' => 2]) ?></span>
                     </div>

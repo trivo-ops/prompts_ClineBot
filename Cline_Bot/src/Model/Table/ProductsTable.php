@@ -87,6 +87,21 @@ class ProductsTable extends Table
                 'message' => 'Please select a valid color option'
             ]);
 
+        $validator
+            ->scalar('sku')
+            ->maxLength('sku', 50, 'SKU cannot exceed 50 characters')
+            ->requirePresence('sku', 'create', 'SKU is required')
+            ->notEmptyString('sku', 'SKU cannot be empty')
+            ->add('sku', 'unique', [
+                'rule' => 'validateUnique',
+                'provider' => 'table',
+                'message' => 'This SKU is already in use'
+            ])
+            ->add('sku', 'format', [
+                'rule' => ['custom', '/^[A-Z0-9-]{3,50}$/'],
+                'message' => 'SKU must contain only uppercase letters, numbers, and hyphens'
+            ]);
+
         return $validator;
     }
 

@@ -21,16 +21,20 @@
                         <span class="detail-value"><?= h($product->id) ?></span>
                     </div>
                     <div class="detail-item">
+                        <span class="detail-label">SKU</span>
+                        <span class="detail-value"><?= h($product->sku ?? 'N/A') ?></span>
+                    </div>
+                    <div class="detail-item">
                         <span class="detail-label">Category</span>
                         <span class="detail-value"><?= h($product->product_category->name) ?></span>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Size</span>
-                        <span class="detail-value"><?= h($product->size) ?></span>
+                        <span class="detail-value"><?= h($product->size ?? 'N/A') ?></span>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Color</span>
-                        <span class="detail-value"><?= h($product->color) ?></span>
+                        <span class="detail-value"><?= h($product->color ?? 'N/A') ?></span>
                     </div>
                 </div>
             </div>

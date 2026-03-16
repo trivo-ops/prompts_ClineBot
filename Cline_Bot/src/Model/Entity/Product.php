@@ -15,6 +15,7 @@ use Cake\ORM\Entity;
  * @property int $stock
  * @property string|null $size
  * @property string|null $color
+ * @property string|null $sku
  * @property \Cake\I18n\FrozenTime|null $created
  * @property \Cake\I18n\FrozenTime|null $modified
  *
@@ -38,6 +39,7 @@ class Product extends Entity
         'stock' => true,
         'size' => true,
         'color' => true,
+        'sku' => true,
         'created' => true,
         'modified' => true,
     ];

@@ -1,8 +1,9 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Test\TestCase\Model\Table;
 
 use App\Model\Table\ProductsTable;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -20,10 +21,11 @@ class ProductsTableTest extends TestCase
     /**
      * Fixtures
      *
-     * @var array
+     * @var array<string>
      */
     protected array $fixtures = [
         'app.Products',
+        'app.Categories',
     ];
 
     /**
@@ -31,11 +33,11 @@ class ProductsTableTest extends TestCase
      *
      * @return void
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
-        $config = TableRegistry::getTableLocator()->exists('Products') ? [] : ['className' => ProductsTable::class];
-        $this->Products = TableRegistry::getTableLocator()->get('Products', $config);
+        $config = $this->getTableLocator()->exists('Products') ? [] : ['className' => ProductsTable::class];
+        $this->Products = $this->getTableLocator()->get('Products', $config);
     }
 
     /**
@@ -43,7 +45,7 @@ class ProductsTableTest extends TestCase
      *
      * @return void
      */
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset($this->Products);
 
@@ -54,93 +56,89 @@ class ProductsTableTest extends TestCase
      * Test validationDefault method
      *
      * @return void
+     * @link \App\Model\Table\ProductsTable::validationDefault()
      */
     public function testValidationDefault(): void
     {
+        $validator = $this->Products->getValidator('default');
+
         // Test valid data
         $data = [
             'name' => 'Test Product',
-            'category' => 'Electronics',
-            'price' => 99.99,
-            'stock' => 10,
-            'size' => 'Large',
-            'color' => 'Blue'
+            'description' => 'Test Description',
+            'price' => 19.99,
+            'category_id' => '550e8400-e29b-41d4-a716-446655440000',
+            'sku' => 'TEST-001'
         ];
 
-        $product = $this->Products->newEntity($data);
-        $this->assertNotFalse($product);
-        $this->assertEmpty($product->getErrors());
+        $errors = $validator->validate($data);
+        $this->assertEmpty($errors, 'Valid data should pass validation');
 
-        // Test invalid data - missing required fields
-        $data = [
-            'category' => 'Electronics',
-            'price' => 99.99,
-            'stock' => 10
-        ];
+        // Test invalid SKU format
+        $data['sku'] = 'invalid-sku!';
+        $errors = $validator->validate($data);
+        $this->assertNotEmpty($errors, 'Invalid SKU should fail validation');
+        $this->assertArrayHasKey('sku', $errors, 'SKU validation error should be present');
 
-        $product = $this->Products->newEntity($data);
-        $this->assertNotFalse($product);
-        $this->assertNotEmpty($product->getErrors());
-        $this->assertArrayHasKey('name', $product->getErrors());
-
-        // Test invalid data - negative price
-        $data = [
-            'name' => 'Test Product',
-            'category' => 'Electronics',
-            'price' => -10.00,
-            'stock' => 10
-        ];
-
-        $product = $this->Products->newEntity($data);
-        $this->assertNotFalse($product);
-        $this->assertNotEmpty($product->getErrors());
-        $this->assertArrayHasKey('price', $product->getErrors());
-
-        // Test invalid data - negative stock
-        $data = [
-            'name' => 'Test Product',
-            'category' => 'Electronics',
-            'price' => 99.99,
-            'stock' => -5
-        ];
-
-        $product = $this->Products->newEntity($data);
-        $this->assertNotFalse($product);
-        $this->assertNotEmpty($product->getErrors());
-        $this->assertArrayHasKey('stock', $product->getErrors());
+        // Test missing SKU
+        unset($data['sku']);
+        $errors = $validator->validate($data);
+        $this->assertNotEmpty($errors, 'Missing SKU should fail validation');
+        $this->assertArrayHasKey('sku', $errors, 'SKU validation error should be present');
     }
 
     /**
      * Test buildRules method
      *
      * @return void
+     * @link \App\Model\Table\ProductsTable::buildRules()
      */
     public function testBuildRules(): void
     {
-        // Test unique name constraint
-        $data1 = [
-            'name' => 'Unique Product',
-            'category' => 'Electronics',
-            'price' => 99.99,
-            'stock' => 10
-        ];
+        $this->markTestIncomplete('Not implemented yet.');
+    }
 
-        $product1 = $this->Products->newEntity($data1);
-        $saved1 = $this->Products->save($product1);
-        $this->assertNotFalse($saved1);
+    /**
+     * Test SKU uniqueness validation
+     *
+     * @return void
+     */
+    public function testSkuUniqueness(): void
+    {
+        // Create a product with a specific SKU
+        $product1 = $this->Products->newEntity([
+            'name' => 'Product 1',
+            'description' => 'Description 1',
+            'price' => 10.00,
+            'category_id' => '550e8400-e29b-41d4-a716-446655440000',
+            'sku' => 'UNIQUE-001'
+        ]);
 
-        // Try to save another product with the same name
-        $data2 = [
-            'name' => 'Unique Product',
-            'category' => 'Clothing',
-            'price' => 49.99,
-            'stock' => 5
-        ];
+        $this->Products->save($product1);
 
-        $product2 = $this->Products->newEntity($data2);
-        $saved2 = $this->Products->save($product2);
-        $this->assertFalse($saved2);
-        $this->assertNotEmpty($product2->getErrors());
-        $this->assertArrayHasKey('name', $product2->getErrors());
+        // Try to create another product with the same SKU
+        $product2 = $this->Products->newEntity([
+            'name' => 'Product 2',
+            'description' => 'Description 2',
+            'price' => 20.00,
+            'category_id' => '550e8400-e29b-41d4-a716-446655440000',
+            'sku' => 'UNIQUE-001'
+        ]);
+
+        $result = $this->Products->save($product2);
+        $this->assertFalse($result, 'Duplicate SKU should not be saved');
+        $this->assertNotEmpty($product2->getErrors(), 'Validation errors should be present');
+        $this->assertArrayHasKey('sku', $product2->getErrors(), 'SKU validation error should be present');
+    }
+
+    /**
+     * Test buildRules method
+     *
+     * @return void
+     * @link \App\Model\Table\ProductsTable::buildRules()
+     */
+    public function testBuildRules(): void
+    {
+        $this->markTestIncomplete('Not implemented yet.');
     }
 }

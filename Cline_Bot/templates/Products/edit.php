@@ -90,6 +90,18 @@
             </div>
 
             <div class="form-group">
+                <?= $this->Form->control('sku', [
+                    'class' => 'form-input',
+                    'label' => [
+                        'text' => 'SKU',
+                        'class' => 'form-label'
+                    ],
+                    'placeholder' => 'Enter product SKU (optional)',
+                    'value' => $product->sku
+                ]) ?>
+            </div>
+
+            <div class="form-group">
                 <?= $this->Form->control('color', [
                     'class' => 'form-input',
                     'type' => 'select',
