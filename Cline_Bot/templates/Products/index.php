@@ -1,5 +1,6 @@
 <div class="action-buttons">
     <?= $this->Html->link(__('Add New Product'), ['action' => 'add'], ['class' => 'btn-primary']) ?>
+    <?= $this->Html->link(__('Manage Categories'), ['controller' => 'Categories', 'action' => 'index'], ['class' => 'btn-secondary']) ?>
 </div>
 
 <?php if (!empty($products)) : ?>
@@ -7,7 +8,7 @@
         <?php foreach ($products as $product) : ?>
             <div class="product-card">
                 <h3 class="product-name"><?= h($product->name) ?></h3>
-                <span class="product-category"><?= h($product->category) ?></span>
+                <span class="product-category"><?= h($product->product_category->name ?? 'No Category') ?></span>
 
                 <div class="product-details">
                     <div class="product-detail-item">
