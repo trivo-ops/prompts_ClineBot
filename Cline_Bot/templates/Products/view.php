@@ -1,6 +1,5 @@
 <div class="page-header">
     <h1 class="page-title">Product Details</h1>
-    <p class="page-subtitle">View complete information for <?= h($product->name) ?></p>
 </div>
 
 <div class="action-buttons">
@@ -19,11 +18,11 @@
                 <div class="detail-grid">
                     <div class="detail-item">
                         <span class="detail-label">Product ID</span>
-                        <span class="detail-value"><?= $this->Number->format($product->id) ?></span>
+                        <span class="detail-value"><?= h($product->id) ?></span>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Category</span>
-                        <span class="detail-value"><?= h($product->category) ?></span>
+                        <span class="detail-value"><?= h($product->product_category->name) ?></span>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Size</span>

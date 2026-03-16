@@ -190,4 +190,89 @@ class ProductsControllerTest extends TestCase
         $this->delete('/products/delete/1');
         $this->assertResponseSuccess();
     }
+
+    /**
+     * Test index method with category filter
+     *
+     * @return void
+     * @uses \App\Controller\ProductsController::index()
+     */
+    public function testIndexWithCategoryFilter(): void
+    {
+        $this->get('/products?category_id=1');
+        $this->assertResponseOk();
+        $this->assertResponseContains('Products');
+    }
+
+    /**
+     * Test add method with category
+     *
+     * @return void
+     * @uses \App\Controller\ProductsController::add()
+     */
+    public function testAddWithCategory(): void
+    {
+        // Simulate authenticated user
+        $this->session([
+            'Auth' => [
+                'id' => 1,
+                'username' => 'testuser',
+                'email' => 'test@example.com'
+            ]
+        ]);
+
+        $this->get('/products/add');
+        $this->assertResponseOk();
+        $this->assertResponseContains('Add Product');
+
+        $this->enableCsrfToken();
+        $this->post('/products/add', [
+            'name' => 'Test Product with Category',
+            'category' => 'Electronics',
+            'price' => 29.99,
+            'stock' => 5,
+            'size' => 'Medium',
+            'color' => 'Red',
+            'category_id' => 1
+        ]);
+        $this->assertResponseSuccess();
+        $this->assertFlashMessage('The product has been saved.');
+        $this->assertRedirect(['action' => 'index']);
+    }
+
+    /**
+     * Test edit method with category
+     *
+     * @return void
+     * @uses \App\Controller\ProductsController::edit()
+     */
+    public function testEditWithCategory(): void
+    {
+        // Simulate authenticated user
+        $this->session([
+            'Auth' => [
+                'id' => 1,
+                'username' => 'testuser',
+                'email' => 'test@example.com'
+            ]
+        ]);
+
+        $this->get('/products/edit/1');
+        $this->assertResponseOk();
+        $this->assertResponseContains('Edit Product');
+
+        $this->enableCsrfToken();
+        $this->post('/products/edit/1', [
+            'name' => 'Updated Product',
+            'category' => 'Updated Category',
+            'price' => 39.99,
+            'stock' => 15,
+            'size' => 'Large',
+            'color' => 'Green',
+            'category_id' => 1
+        ]);
+        $this->assertResponseSuccess();
+        $this->assertFlashMessage('The product has been updated.');
+        $this->assertRedirect(['action' => 'index']);
+    }
 }
