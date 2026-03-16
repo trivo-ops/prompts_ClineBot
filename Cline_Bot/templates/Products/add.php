@@ -4,7 +4,6 @@
 
 <div class="action-buttons">
     <?= $this->Html->link(__('Back to List'), ['action' => 'index'], ['class' => 'btn-secondary']) ?>
-    <?= $this->Html->link(__('View Dashboard'), ['controller' => 'Users', 'action' => 'dashboard'], ['class' => 'btn-secondary']) ?>
 </div>
 
 <div class="form-container">
@@ -86,6 +85,17 @@
                         'text' => 'Size',
                         'class' => 'form-label'
                     ]
+                ]) ?>
+            </div>
+
+            <div class="form-group">
+                <?= $this->Form->control('sku', [
+                    'class' => 'form-input',
+                    'label' => [
+                        'text' => 'SKU',
+                        'class' => 'form-label'
+                    ],
+                    'placeholder' => 'Enter product SKU (optional)'
                 ]) ?>
             </div>
 

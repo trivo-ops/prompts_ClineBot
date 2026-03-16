@@ -13,6 +13,19 @@ globs: ["*.*"]
 Takes a raw task description as input and guides the developer through normalizing the requirements into a clear prompt, breaking it into a detailed implementation plan, implementing the code changes with continuous context window monitoring, and finally producing a pull request with a complete commit message via the `pr-review-cline` workflow. If the context window exceeds 50% during implementation, the workflow automatically initiates a `new_task` handoff so work continues seamlessly in a fresh session.
 </task_objective>
 
+<human_in_the_loop_loop>
+This workflow is human-in-the-loop by default. Explicit user approval is required at the following checkpoints:
+
+1. After the Normalized Prompt
+2. After the Human-in-the-Loop Summary  
+3. After the Detailed Implementation Plan
+4. Before any high-impact implementation step
+5. Before commit / PR creation
+6. **Context Window Handoff**: When context usage exceeds 50%, the assistant MUST offer to create a new task via `new_task` tool
+
+If the user requests changes at any checkpoint, the workflow must loop back, revise the current artifact, and re-present it before continuing. The assistant must not proceed until explicit approval is received.
+</human_in_the_loop_loop>
+
 <detailed_sequence_steps>
 # Ship New Feature Process - Detailed Sequence of Steps
 
@@ -28,7 +41,8 @@ If starting in Plan Mode, you **MUST** perform upfront decomposition before any 
    ```mermaid
    graph TD
        A[Ship New Feature] --> B[Step 1: Gather & Normalize]
-       B --> C[Step 2: Implementation Plan]
+       B --> F[Step 1.5: Human-in-the-Loop Model Evaluation]
+       F --> C[Step 2: Implementation Plan]
        C --> D[Step 3: Implement Code]
        D --> E[Step 4: Create Pull Request]
    ```
@@ -72,7 +86,39 @@ If starting in Plan Mode, you **MUST** perform upfront decomposition before any 
    - <Any related features, services, or external systems>
    ```
 
-5. Present the Normalized Prompt to the user and use ue`ask_followup_qstion` to confirm it is accurate before proceeding.
+5. Present the Normalized Prompt to the user and ask the user to choose:
+   - **APPROVED** - proceed to Step 1.5
+   - **APPROVED WITH CHANGES** - revise the Normalized Prompt and re-present
+   - **REJECTED** - return to step 2 to gather more information
+
+   If changes are requested, the assistant must revise and re-present the Normalized Prompt before continuing.
+
+> **📊 Context Check:** Verify context window usage before proceeding to Step 1.5. If ≥ 50%, initiate a `new_task` handoff now.
+
+---
+
+## Step 1.5: Human-in-the-Loop Model Evaluation
+
+Before planning, evaluate how Cline's Human-in-the-Loop model should shape this workflow:
+
+- **Approval Boundaries** - Identify which decisions require explicit user approval
+- **High-Impact Actions** - Determine actions that need user confirmation (e.g., file modifications, commits)
+- **Execution Risks** - Assess potential risks that warrant user oversight
+- **User Intervention Points** - Define optimal moments for user input and course correction
+- **Handoff/Control Points** - Identify when context handoffs or user control transfers are needed
+
+Produce a **Human-in-the-Loop Summary** with:
+- **Approval Requirements** - Specific checkpoints requiring user approval
+- **Risk Mitigation** - How user oversight will prevent errors or undesired outcomes
+- **Control Flow** - When and how user intervention will occur
+- **Fallback Procedures** - What happens if user approval is not received
+
+Present the Human-in-the-Loop Summary to the user and ask them to choose:
+- **APPROVE HUMAN-IN-THE-LOOP** → proceed to Step 2
+- **REVISE APPROVAL BOUNDARIES** → adjust the approval requirements and re-present
+- **CHANGE CONTROL MODEL** → modify the human-in-the-loop approach
+
+**Important:** Do not create the Detailed Implementation Plan until the Human-in-the-Loop Summary is explicitly approved.
 
 > **📊 Context Check:** Verify context window usage before proceeding to Step 2. If ≥ 50%, initiate a `new_task` handoff now.
 
@@ -112,6 +158,13 @@ If starting in Plan Mode, you **MUST** perform upfront decomposition before any 
 
 3. Present the Detailed Implementation Plan to the user and use `ask_followup_question` to confirm or adjust before proceeding.
 
+4. Ask the user to choose:
+   - **APPROVED** - proceed to Step 3
+   - **APPROVED WITH CHANGES** - revise the Detailed Implementation Plan and re-present
+   - **REJECTED** - revisit the plan approach
+
+   If changes are requested, the assistant must revise and re-present the Detailed Implementation Plan before continuing.
+
 > **📊 Context Check:** Verify context window usage before proceeding to Step 3. If ≥ 50%, initiate a `new_task` handoff now, carrying forward the Normalized Prompt and Implementation Plan.
 
 ---
@@ -119,6 +172,22 @@ If starting in Plan Mode, you **MUST** perform upfront decomposition before any 
 ## Step 3: Implement Code Changes
 
 Execute the implementation plan **one atomic step at a time**, checking context window usage before each step.
+
+### High-Impact Step Approval
+
+Before executing any high-impact implementation step, the assistant must pause and get explicit user approval.
+
+High-impact steps include:
+- database schema or migration changes
+- destructive file operations
+- authentication or authorization changes
+- large refactors across multiple files
+- commands that may significantly alter project state
+
+If a step is high-impact:
+1. Summarize the intended change
+2. Explain the expected impact
+3. Use `ask_followup_question` to get approval before proceeding
 
 ### For each implementation step:
 
@@ -164,34 +233,36 @@ Execute the implementation plan **one atomic step at a time**, checking context 
 
 ## Step 4: Create Pull Request via PR Review Workflow
 
-1. Trigger the `pr-review-cline` workflow, which will produce:
+1. Use `ask_followup_question` to get explicit user approval before commit / PR creation.
+
+2. Trigger the `pr-review-cline` workflow, which will produce:
    - A structured commit message following Conventional Commits format.
    - A PR description with context, changes, and testing notes.
 
-2. Confirm the branch is up to date and all changes are staged:
+3. Confirm the branch is up to date and all changes are staged:
    ```bash
    git status
    git diff --stat
    ```
 
-3. Use `execute_command` to commit all changes:
+4. Use `execute_command` to commit all changes:
    ```bash
    git add -A
    git commit -m "<commit message from pr-review>"
    ```
 
-4. Use `execute_command` to push the branch:
+5. Use `execute_command` to push the branch:
    ```bash
    git push origin <branch-name>
    ```
 
-5. Use `execute_command` or provide instructions to open a PR on the remote:
+6. Use `execute_command` or provide instructions to open a PR on the remote:
    ```bash
    # GitHub CLI example
    gh pr create --title "<PR title>" --body "<PR description>"
    ```
 
-6. Use `attempt_completion` to present the final result:
+7. Use `attempt_completion` to present the final result:
    - Link to the created PR (if available).
    - Summary of the full workflow journey:
      - Normalized prompt.
