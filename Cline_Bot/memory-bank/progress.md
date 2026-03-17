@@ -11,6 +11,7 @@ The project has a solid functional base and includes the core features expected 
 - User login
 - User logout
 - User dashboard
+- Dashboard profile display and editing
 
 ### UI Improvements
 - Login page redesign
@@ -64,7 +65,7 @@ The following should not be treated as completed unless they are explicitly impl
 
 ## Current Limitations
 
-- Profile management on the dashboard is still minimal.
+- Profile management now supports basic display and self-profile editing, but does not yet include file upload or password management.
 - Product search and filtering are not yet a major feature.
 - There is no confirmed advanced reporting or analytics layer.
 - No confirmed client-side validation layer is present in the current codebase.
@@ -73,12 +74,14 @@ The following should not be treated as completed unless they are explicitly impl
 
 A strong next task would be:
 
-**Dashboard Profile Enhancement**
+**File Upload for User Avatars**
 
 Example scope:
-- display username, email, and created date on the dashboard
-- allow editing simple profile information such as username, bio/description, and avatar path
-- keep UI consistent with the current auth/products/categories design
+- implement file upload functionality for user avatars
+- allow users to upload their own profile pictures instead of just providing URLs
+- add server-side validation for file types and sizes
+- store uploaded files in a dedicated directory with proper security measures
+- update the user profile editing form to include file upload field
 - update memory-bank after implementation
 
 ## Project Health Summary
