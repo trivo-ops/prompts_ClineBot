@@ -1,418 +1,136 @@
 # System Patterns: Cline_Bot
 
-## System Architecture
+## Architectural Style
 
-### MVC Architecture Pattern
-Cline_Bot follows the classic Model-View-Controller (MVC) pattern as implemented by CakePHP 5:
+The application follows standard CakePHP MVC patterns.
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Controllers   │    │      Views      │    │     Models      │
-│                 │    │                 │    │                 │
-│ • Products      │◄──►│ • Templates     │◄──►│ • Entities      │
-│ • Categories    │    │ • Layouts       │    │ • Tables        │
-│ • Users         │    │ • Elements      │    │ • Behaviors     │
-│ • Authentication│    │ • Helpers       │    │ • Validation    │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
+### Main Layers
+- **Controllers** handle request flow, form submission handling, redirects, and flash messaging
+- **Table classes** define associations, validation, and integrity rules
+- **Entities** represent row-level data objects
+- **Templates** render server-side views
+- **Migrations** evolve the database schema over time
 
-**Controllers**: Handle HTTP requests, coordinate between models and views, implement business logic
-**Views**: Present data to users through templates, handle user interface rendering
-**Models**: Manage data, business rules, validation, and database interactions
+This is a conventional server-rendered CakePHP application, not a front-end-heavy SPA architecture.
 
-### Layered Architecture
-The application is organized into distinct layers:
+## Core Functional Patterns
 
-1. **Presentation Layer** (`templates/`, `src/View/`)
-   - User interface components
-   - Template rendering and layout management
-   - Form handling and validation display
+### 1. Authentication Pattern
+Authentication is handled through CakePHP Authentication.
 
-2. **Application Layer** (`src/Controller/`)
-   - Request handling and routing
-   - Business process coordination
-   - Authentication and authorization
+Observed user actions include:
+- register
+- login
+- logout
+- dashboard
 
-3. **Domain Layer** (`src/Model/Entity/`)
-   - Business entities and value objects
-   - Core business rules and logic
-   - Data validation and constraints
+Controllers retrieve the authenticated identity when needed, and some actions are explicitly allowed for unauthenticated access.
 
-4. **Infrastructure Layer** (`src/Model/Table/`, `config/`)
-   - Database persistence
-   - Configuration management
-   - External service integration
+### 2. CRUD Pattern
+Products and Categories both follow a standard CakePHP CRUD pattern:
+- `index`
+- `view`
+- `add`
+- `edit`
+- `delete`
 
-## Key Design Patterns
+This creates a consistent structure across resource areas.
 
-### Repository Pattern
-Implemented through CakePHP's Table classes:
-- `ProductsTable` manages product data access
-- `CategoriesTable` handles category operations
-- `UsersTable` manages user authentication data
-- Provides abstraction between business logic and data storage
+### 3. Validation Pattern
+Validation is implemented in Table classes using CakePHP's `Validator`.
 
-### Active Record Pattern
-CakePHP's ORM implements Active Record through Entity classes:
-- `Product` entity encapsulates product data and behavior
-- `Category` entity manages category relationships
-- `User` entity handles authentication and user data
-- Entities contain validation rules and business logic
+Confirmed example:
+- `src/Model/Table/ProductsTable.php`
 
-### Dependency Injection
-CakePHP's service container manages dependencies:
-- Controllers receive dependencies through constructor injection
-- Services are automatically resolved and injected
-- Promotes loose coupling and testability
+The current pattern is:
+- define field rules in `validationDefault()`
+- define relational/integrity rules in `buildRules()`
+- use ORM save operations as the validation gate
 
-### Factory Pattern
-Used for entity creation and validation:
-- Table classes act as factories for entities
-- Validation rules are defined in table classes
-- Consistent object creation across the application
+This means server-side validation is the primary confirmed validation layer.
 
-### Observer Pattern
-Implemented through CakePHP's event system:
-- Model events for beforeSave, afterSave, etc.
-- Custom events for business processes
-- Loose coupling between components
+### 4. Relationship Pattern
+Products and Categories use ORM associations rather than raw manual joins.
 
-## Database Design Patterns
+Confirmed pattern:
+- `Products belongsTo Categories`
+- `Categories hasMany Products`
 
-### UUID Primary Keys
-All entities use UUIDs instead of auto-increment integers:
-```php
-// In migration files
-$table->addColumn('id', 'uuid', [
-    'default' => null,
-    'null' => false,
-]);
-```
+This supports:
+- dropdown-based category selection in forms
+- related data loading via `contain()`
+- referential integrity rules via `existsIn()`
 
-**Benefits:**
-- Distributed system compatibility
-- Security (no predictable IDs)
-- Easier data merging and replication
+### 5. Schema Evolution Pattern
+The schema has evolved incrementally through migrations instead of big rewrites.
 
-### Soft Deletes
-Implemented using `deleted` timestamp fields:
-```php
-// In ProductsTable.php
-$this->addBehavior('Timestamp', [
-    'events' => [
-        'Model.beforeSave' => [
-            'created' => 'new',
-            'modified' => 'always',
-        ],
-        'Model.beforeDelete' => [
-            'deleted' => 'always',
-        ],
-    ],
-]);
-```
+Examples of this pattern:
+- adding Categories separately
+- introducing `category_id` into Products
+- migrating Products toward UUID identifiers
+- adding SKU through a dedicated migration
 
-**Benefits:**
-- Data recovery capability
-- Audit trail maintenance
-- Compliance with data retention policies
+This shows a task-by-task migration style rather than a single upfront schema design.
 
-### Referential Integrity
-Foreign key relationships with proper constraints:
-```php
-// In ProductsTable.php
-$this->belongsTo('Categories', [
-    'foreignKey' => 'category_id',
-    'joinType' => 'INNER',
-]);
-```
+## UI and View Patterns
 
-## Validation Patterns
+### Layout Pattern
+Different sections of the app use section-specific layouts and styles rather than only the default CakePHP scaffold output.
 
-### Server-Side Validation
-Comprehensive validation rules defined in model tables:
-```php
-// In ProductsTable.php
-public function validationDefault(Validator $validator): Validator
-{
-    $validator
-        ->uuid('id')
-        ->allowEmptyString('id', null, 'create');
+Examples seen in the repo include custom styling for:
+- auth pages
+- products pages
+- categories pages
 
-    $validator
-        ->scalar('name')
-        ->maxLength('name', 255)
-        ->requirePresence('name', 'create')
-        ->notEmptyString('name');
+### Form Pattern
+Forms are server-rendered and follow CakePHP form helper conventions.
 
-    // Additional validation rules...
+Typical pattern:
+- create or fetch entity
+- patch request data into entity
+- save entity
+- show flash success/error message
+- re-render form on failure
 
-    return $validator;
-}
-```
+### Feedback Pattern
+User feedback is primarily handled through:
+- validation errors from CakePHP
+- flash success/error messages
+- redirect-after-success flow
 
-**Validation Strategy:**
-- Required fields validation
-- Data type validation
-- Length constraints
-- Uniqueness constraints
-- Custom business rule validation
+## Data Modeling Patterns
 
-### Client-Side Validation
-JavaScript validation for immediate user feedback:
-```javascript
-// In products.js
-function validateForm() {
-    const name = document.getElementById('name').value;
-    const price = document.getElementById('price').value;
+### Users
+- created early with integer primary keys
+- support authentication flow
 
-    if (!name.trim()) {
-        showError('name', 'Product name is required');
-        return false;
-    }
+### Categories
+- modeled as a first-class table
+- use UUID validation in the Table class
+- support product organization
 
-    if (!price || isNaN(price) || price <= 0) {
-        showError('price', 'Valid price is required');
-        return false;
-    }
+### Products
+- evolved from simpler CRUD data to category-linked products
+- now include required unique SKU handling
+- rely on validation rules for data consistency
 
-    return true;
-}
-```
+## Important Accuracy Rules
 
-## Security Patterns
+To keep this file trustworthy:
+- do not assume patterns that are not visible in the codebase
+- do not describe client-side validation unless it is actually implemented
+- do not describe soft delete unless it is explicitly present
+- do not generalize all tables as UUID-based if only some of them are
 
-### Authentication Pattern
-CakePHP Authentication plugin implementation:
-```php
-// In Application.php
-public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface
-{
-    $authenticationService = new AuthenticationService([
-        'unauthenticatedRedirect' => '/users/login',
-        'queryParam' => 'redirect',
-    ]);
+## Recommended Pattern for Future Tasks
 
-    $authenticationService->loadIdentifier('Authentication.Password', [
-        'fields' => [
-            'username' => 'email',
-            'password' => 'password',
-        ],
-    ]);
+Future tasks should continue the current style:
+- follow CakePHP MVC conventions
+- keep schema changes incremental through migrations
+- preserve the existing UI direction
+- keep logic in the appropriate controller/table/template layers
+- update the memory-bank after major changes
 
-    $authenticationService->loadAuthenticator('Authentication.Session');
-    $authenticationService->loadAuthenticator('Authentication.Form', [
-        'fields' => [
-            'username' => 'email',
-            'password' => 'password',
-        ],
-        'loginUrl' => '/users/login',
-    ]);
+## Purpose of This File
 
-    return $authenticationService;
-}
-```
-
-### Authorization Pattern
-Controller-level authorization checks:
-```php
-// In ProductsController.php
-public function isAuthorized($user)
-{
-    // Admin can access every action
-    if (isset($user['role']) && $user['role'] === 'admin') {
-        return true;
-    }
-
-    // Default deny
-    return false;
-}
-```
-
-### Input Sanitization
-Automatic sanitization through CakePHP's ORM:
-- SQL injection prevention through parameterized queries
-- XSS prevention through proper escaping in templates
-- CSRF protection through form tokens
-
-## Error Handling Patterns
-
-### Exception Handling
-Custom exception handling in Application.php:
-```php
-// In Application.php
-public function getMiddleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
-{
-    $middlewareQueue
-        // Handle plugin/theme assets
-        ->add(new AssetMiddleware([
-            'cacheTime' => Configure::read('Asset.cacheTime'),
-        ]))
-        // Add routing middleware
-        ->add(new RoutingMiddleware($this))
-        // Add authentication middleware
-        ->add(new AuthenticationMiddleware($this))
-        // Add error handling middleware
-        ->add(new ErrorHandlerMiddleware(Configure::read('Error')))
-        // Add CORS middleware
-        ->add(new CorsMiddleware());
-
-    return $middlewareQueue;
-}
-```
-
-### Flash Messages
-User-friendly error and success messaging:
-```php
-// In controller actions
-$this->Flash->success(__('The product has been saved.'));
-$this->Flash->error(__('The product could not be saved. Please, try again.'));
-```
-
-## Performance Patterns
-
-### Query Optimization
-Efficient database queries through CakePHP ORM:
-```php
-// In ProductsController.php
-public function index()
-{
-    $this->paginate = [
-        'contain' => ['Categories'],
-        'limit' => 20,
-        'order' => ['Products.name' => 'ASC'],
-    ];
-
-    $products = $this->paginate($this->Products);
-    $this->set(compact('products'));
-}
-```
-
-### Caching Strategy
-Configurable caching for improved performance:
-```php
-// In app.php
-'Cache' => [
-    'default' => [
-        'className' => 'File',
-        'path' => CACHE,
-    ],
-    '_cake_core_' => [
-        'className' => 'File',
-        'prefix' => 'myapp_cake_core_',
-        'path' => CACHE . 'persistent/',
-        'serialize' => true,
-        'duration' => '+2 minutes',
-    ],
-],
-```
-
-## Testing Patterns
-
-### Unit Testing
-Model and component testing using CakePHP's test framework:
-```php
-// In Tests/TestCase/Model/Table/ProductsTableTest.php
-public function testValidationDefault()
-{
-    $products = TableRegistry::getTableLocator()->get('Products');
-    $validator = $products->getValidator('default');
-
-    $this->assertTrue($validator->hasField('name'));
-    $this->assertTrue($validator->hasField('price'));
-    $this->assertTrue($validator->hasField('category_id'));
-}
-```
-
-### Functional Testing
-Integration testing for complete user workflows:
-```php
-// In Tests/TestCase/Controller/ProductsControllerTest.php
-public function testAdd()
-{
-    $this->session([
-        'Auth' => [
-            'User' => [
-                'id' => 1,
-                'email' => 'test@example.com',
-                'role' => 'admin',
-            ],
-        ],
-    ]);
-
-    $data = [
-        'name' => 'Test Product',
-        'description' => 'Test Description',
-        'price' => 99.99,
-        'category_id' => 1,
-    ];
-
-    $this->post('/products/add', $data);
-    $this->assertResponseSuccess();
-    $this->assertRedirect(['controller' => 'Products', 'action' => 'index']);
-}
-```
-
-## Deployment Patterns
-
-### Docker Configuration
-Containerized development and deployment:
-```yaml
-# In docker-compose.yml
-version: '3.8'
-services:
-  app:
-    build: .
-    ports:
-      - "8765:80"
-    volumes:
-      - .:/var/www/html
-    depends_on:
-      - db
-
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: cline_bot
-      MYSQL_USER: cline_bot
-      MYSQL_PASSWORD: cline_bot
-    volumes:
-      - db_data:/var/lib/mysql
-```
-
-### Environment Configuration
-Separate configuration for different environments:
-```php
-// In config/app.php
-if (env('APP_ENV') === 'production') {
-    Configure::write('debug', false);
-    Configure::write('Error', ['errorLevel' => E_ALL & ~E_DEPRECATED]);
-} else {
-    Configure::write('debug', true);
-}
-```
-
-## Code Organization Patterns
-
-### Modular Structure
-Clear separation of concerns:
-- Controllers handle HTTP logic
-- Models manage data and business rules
-- Views handle presentation
-- Components provide reusable functionality
-
-### Naming Conventions
-Consistent naming following CakePHP conventions:
-- Controllers: PascalCase, plural (ProductsController)
-- Models: PascalCase, singular (Product)
-- Tables: PascalCase, singular + Table (ProductsTable)
-- Views: lowercase, plural directory with lowercase files (templates/Products/add.php)
-
-### Code Reusability
-Components and behaviors for shared functionality:
-- Custom components in src/Controller/Component/
-- Behaviors in src/Model/Behavior/
-- Helpers in src/View/Helper/
-- Elements in templates/element/
-
-This architecture provides a solid foundation for maintaining and extending the application while following established best practices and CakePHP conventions.
+This file should capture the recurring implementation patterns of the codebase so future tasks can reuse them instead of reinventing structure each time.

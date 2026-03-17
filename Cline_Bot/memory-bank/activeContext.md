@@ -2,101 +2,56 @@
 
 ## Current Work Focus
 
-**Primary Objective**: Complete memory-bank documentation system for project knowledge management and context preservation.
+The current focus is maintaining an accurate memory-bank for the project so future Cline sessions can quickly understand the codebase and continue work with minimal repeated context.
 
-**Current Phase**: Documentation creation and system setup.
+## Current Project State
 
-## Recent Changes (Last 10 Events)
+The project currently includes these completed areas:
 
-1. **2025-03-16**: Created comprehensive memory-bank documentation system with 5 core files
-2. **2025-03-16**: Completed projectbrief.md with project overview and technology stack
-3. **2025-03-16**: Completed productContext.md with business requirements and user experience goals
-4. **2025-03-16**: Completed systemPatterns.md with technical architecture and design patterns
-5. **2025-03-16**: Created techContext.md with condensed technical information and development setup
-6. **2025-03-16**: Identified missing activeContext.md and progress.md files for complete documentation
-7. **2025-03-16**: Currently creating activeContext.md to capture current state and recent changes
-8. **2025-03-16**: Preparing to create progress.md with current project status and roadmap
-9. **2025-03-16**: Memory-bank system now contains 4 of 6 core files (67% complete)
-10. **2025-03-16**: Documentation structure follows established hierarchy with proper cross-references
+- User registration, login, logout, and dashboard flow
+- Login and Register UI redesign
+- Products CRUD
+- Products validation and UI improvements
+- Categories CRUD
+- Product to Category relationship using `category_id`
+- Product SKU field with required and unique validation
+- Memory-bank documentation initialized
 
-## Next Steps
+## Recent Important Changes
 
-1. **Complete Documentation**: Finish creating activeContext.md and progress.md files
-2. **System Integration**: Ensure all memory-bank files reference each other correctly
-3. **Validation**: Verify documentation accuracy and completeness
-4. **Future Enhancement**: Consider adding changelog.md for version tracking
+1. User authentication was added with register, login, logout, and dashboard actions.
+2. Login and Register pages were restyled away from the default CakePHP scaffold appearance.
+3. Products CRUD was implemented following CakePHP MVC conventions.
+4. Products validation was added in `ProductsTable.php`.
+5. Categories CRUD was added and Products now reference Categories through `category_id`.
+6. Existing product category text data was migrated toward the category-based structure.
+7. A required and unique `sku` field was added to Products through migration and validation updates.
+8. The memory-bank folder and its core files were created to preserve project knowledge.
 
-## Active Decisions and Considerations
+## Active Decisions and Constraints
 
-### Documentation Structure Decision
-- **Chose**: 6-core-file structure (projectbrief, productContext, systemPatterns, techContext, activeContext, progress)
-- **Rationale**: Provides comprehensive coverage from business context to technical implementation
-- **Impact**: Enables complete project understanding for new developers and system continuity
+- Keep changes minimal and follow the existing CakePHP project structure.
+- Prefer documenting real implementation details from the repo over generic framework assumptions.
+- Treat server-side validation as the confirmed validation layer unless client-side validation is actually present in the codebase.
+- Use memory-bank files to capture stable knowledge, not temporary progress notes from an in-flight session.
 
-### Technical Documentation Approach
-- **Chose**: Condensed techContext.md focusing on essential information
-- **Rationale**: User requested concise technical information for quick reference
-- **Impact**: Balances completeness with readability for development team reference
+## Important Technical Notes
 
-### Project Status Assessment
-- **Chose**: Mark Products validation as completed based on existing implementation
-- **Rationale**: Validation rules are fully implemented in ProductsTable.php with comprehensive coverage
-- **Impact**: Accurate project status enables proper planning for next development phase
+- `users` currently use an integer primary key in the initial migration.
+- `categories` use UUID primary keys.
+- `products` were later migrated to UUID primary keys.
+- Products belong to Categories through `category_id`.
+- The dashboard already exists in `UsersController::dashboard()` and `templates/Users/dashboard.php`.
+- Product validation is implemented in `src/Model/Table/ProductsTable.php`.
 
-## Important Patterns and Preferences
+## Next Logical Task
 
-### Documentation Patterns
-- **Structure**: Hierarchical organization with clear cross-references
-- **Content**: Business context → Technical implementation → Current state → Progress tracking
-- **Format**: Markdown with consistent heading structure and code examples
+A logical next task is enhancing the user dashboard/profile area so the logged-in user can view and edit more profile information while keeping the UI consistent with the rest of the application.
 
-### Technical Patterns (Current Project)
-- **Architecture**: MVC with CakePHP 5 conventions
-- **Database**: UUID primary keys with soft deletes
-- **Validation**: Server-side validation with client-side enhancement
-- **Security**: Authentication plugin with session management
+## Why This File Matters
 
-### Development Workflow
-- **Task Management**: Documented in docs/tasks/ with clear implementation plans
-- **Database Changes**: Managed through CakePHP migrations
-- **Code Quality**: Automated tools (PHP_CodeSniffer, PHPStan, Psalm)
-- **Testing**: PHPUnit with CakePHP test framework
-
-## Learnings and Project Insights
-
-### Recent Technical Insights
-1. **Validation Implementation**: Products validation is comprehensive with proper error handling
-2. **Database Design**: Well-structured schema with proper relationships and constraints
-3. **UI/UX**: Modern, responsive design with consistent styling across all templates
-4. **Security**: Robust authentication and input validation preventing common vulnerabilities
-
-### Project Maturity Assessment
-- **Core Features**: ✅ Complete (User auth, Products CRUD, Categories, Validation)
-- **Architecture**: ✅ Solid (MVC, proper separation of concerns)
-- **Code Quality**: ✅ Good (following CakePHP conventions, validation patterns)
-- **Documentation**: ✅ Improving (memory-bank system now established)
-
-### Next Development Phase Considerations
-Based on current state, logical next steps include:
-1. **User Dashboard/Profile Management**: Enhance user experience with personalized features
-2. **Product Search/Filtering**: Improve product discovery and management
-3. **Advanced Features**: Bulk operations, import/export functionality
-4. **API Development**: RESTful API for potential frontend frameworks
-
-## Current Challenges and Solutions
-
-### Documentation Challenge
-- **Issue**: Need to maintain accurate project knowledge across team changes
-- **Solution**: Memory-bank system provides structured knowledge preservation
-- **Status**: ✅ System established, 4 of 6 files complete
-
-### Technical Debt Assessment
-- **Issue**: Need to identify areas for improvement in current implementation
-- **Solution**: Documentation review reveals solid foundation with room for enhancement
-- **Status**: ✅ Core implementation is solid, next phase planning in progress
-
-## Project Context Summary
-
-Cline_Bot is a mature CakePHP 5 e-commerce application with complete core functionality. The project demonstrates good architectural practices, comprehensive validation, and modern UI design. The newly established memory-bank documentation system will ensure project knowledge preservation and facilitate future development.
-
-**Current State**: Documentation system 67% complete, ready for final two files (activeContext.md and progress.md) to achieve full documentation coverage.
+This file should always reflect the latest real state of the project:
+- what is currently true
+- what was recently completed
+- what constraints should guide the next task
+- what the next likely step is

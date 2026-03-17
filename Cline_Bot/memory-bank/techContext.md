@@ -1,166 +1,111 @@
 # Technology Context: Cline_Bot
 
-## Technology Stack Overview
+## Core Stack
 
-### Backend Technologies
-- **Framework**: CakePHP 5.x (latest stable)
-- **Language**: PHP 8.3+ with strict typing (`declare(strict_types=1)`)
-- **Database**: MySQL 8.0 with InnoDB engine
-- **Authentication**: CakePHP Authentication plugin
-- **ORM**: CakePHP's built-in ORM with validation and relationships
+- Framework: CakePHP 5
+- Language: PHP 8.3+
+- Database: MySQL 8
+- Package Manager: Composer
+- Development Environment: Docker and docker-compose
+- Testing: PHPUnit
+- Static Analysis / Quality Tools: PHP_CodeSniffer, PHPStan, Psalm
 
-### Frontend Technologies
-- **Templates**: CakePHP view templates (PHP-based)
-- **Styling**: Custom CSS with modern design principles
-- **JavaScript**: Vanilla JavaScript for interactivity
-- **Responsive Design**: Mobile-first CSS approach
+## Project Structure
 
-### Development & Infrastructure
-- **Containerization**: Docker with docker-compose for development
-- **Package Management**: Composer for PHP dependencies
-- **Build Tools**: Makefile for common development tasks
-- **Code Quality**: PHP_CodeSniffer, PHPStan, Psalm for static analysis
-- **Testing**: PHPUnit with CakePHP test framework
+### Main Application Areas
+- `src/Controller/` - request handling and application actions
+- `src/Model/` - table classes, entities, validation, and business rules
+- `templates/` - CakePHP view templates
+- `config/Migrations/` - database schema changes
+- `webroot/css/` - page styling assets
+- `webroot/js/` - public JavaScript assets
 
-## Key Configuration Files
+### Notable Controllers
+- `UsersController.php` - register, login, logout, dashboard
+- `ProductsController.php` - products CRUD
+- `CategoriesController.php` - categories CRUD
 
-### Application Configuration
-- `config/app.php` - Main application settings, debug mode, security salts
-- `config/bootstrap.php` - Plugin loading and initial setup
-- `config/routes.php` - URL routing configuration
+## Database Notes
 
-### Database Configuration
-- `config/Migrations/` - Database schema changes and data seeding
-- `config/schema/` - SQL schema definitions
-- `config/app_local.example.php` - Local development configuration template
+### Users
+- Created in `20250101000000_CreateUsers.php`
+- Uses the default integer primary key
+- Includes `username`, `email`, `password`, `created`, `modified`
 
-### Development Tools
-- `composer.json` - PHP dependencies and autoloading
-- `phpcs.xml` - PHP_CodeSniffer coding standards
-- `phpstan.neon` - PHPStan static analysis configuration
-- `psalm.xml` - Psalm type checking configuration
-- `phpunit.xml.dist` - PHPUnit testing configuration
+### Products
+- Originally created with a text `category` field
+- Later updated to support `category_id`
+- Later migrated to UUID primary keys
+- Includes `sku` as a required unique field
 
-## Development Environment Setup
+### Categories
+- Created with UUID primary keys
+- Includes `name` and optional `description`
 
-### Docker Configuration
-```yaml
-# docker-compose.yml
-services:
-  app:
-    build: .
-    ports: ["8765:80"]
-    volumes: [".:/var/www/html"]
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_DATABASE: cline_bot
-      MYSQL_USER: cline_bot
-      MYSQL_PASSWORD: cline_bot
-```
+## Validation and Rules
 
-### Makefile Commands
-```bash
-make up          # Start Docker containers
-make shell       # Access app container shell
-make test        # Run test suite
-make cs          # Run code style checks
-make migrate     # Run database migrations
-```
+### Confirmed Validation Layer
+Validation is confirmed in CakePHP Table classes, especially:
 
-## Code Organization
+- `src/Model/Table/ProductsTable.php`
 
-### Source Structure
-```
-src/
-├── Controller/     # HTTP request handlers
-├── Model/         # Data models and business logic
-│   ├── Entity/    # Data objects
-│   └── Table/     # Database operations
-├── View/          # Template rendering
-└── Application.php # Application bootstrap
-```
+The Products validation currently covers:
+- `name`
+- `category_id`
+- `price`
+- `stock`
+- `size`
+- `color`
+- `sku`
 
-### Template Structure
-```
-templates/
-├── Products/      # Product management views
-├── Categories/    # Category management views
-├── Users/         # Authentication views
-└── layout/        # Layout templates
-```
+### Important Note
+Server-side validation is confirmed. Client-side validation should not be assumed unless separate JavaScript validation is actually added later.
 
-## Security Features
+## Authentication
 
-### Authentication
-- Email/password authentication
-- Session-based authentication
-- Password hashing with bcrypt
-- CSRF protection on forms
+The project uses CakePHP Authentication for user login flow.
 
-### Input Validation
-- Server-side validation in model tables
-- Client-side JavaScript validation
-- SQL injection prevention through ORM
-- XSS prevention through template escaping
+Confirmed user actions:
+- register
+- login
+- logout
+- dashboard
 
-### Database Security
-- UUID primary keys (no predictable IDs)
-- Soft deletes for data recovery
-- Foreign key constraints for data integrity
+The dashboard retrieves the authenticated identity in `UsersController::dashboard()`.
 
-## Performance Considerations
+## Frontend Notes
 
-### Database Optimization
-- Indexed foreign keys
-- Efficient query patterns through ORM
-- Pagination for large datasets
-- Proper relationship loading
+The project uses CakePHP templates with custom CSS rather than relying only on the default scaffold presentation.
 
-### Caching Strategy
-- File-based caching for development
-- Configurable cache backends
-- Query result caching where appropriate
+Relevant stylesheets include:
+- `webroot/css/auth.css`
+- `webroot/css/products.css`
+- `webroot/css/categories.css`
 
-### Frontend Optimization
-- Minified CSS and JavaScript
-- Efficient CSS selectors
-- Optimized image handling
-- Responsive design for all devices
+The current UI direction is:
+- cleaner than the default CakePHP scaffold
+- consistent across auth, products, and categories pages
+- server-rendered rather than SPA-based
 
-## Testing Strategy
+## Development Workflow
 
-### Unit Tests
-- Model validation testing
-- Component functionality testing
-- Helper method testing
+Common project support files include:
+- `docker-compose.yml`
+- `Dockerfile`
+- `Makefile`
+- `composer.json`
+- `phpunit.xml.dist`
+- `phpcs.xml`
+- `phpstan.neon`
+- `psalm.xml`
 
-### Integration Tests
-- Controller action testing
-- Full workflow testing
-- Database interaction testing
+Schema changes are handled through CakePHP migrations in `config/Migrations/`.
 
-### Functional Tests
-- User interface testing
-- End-to-end workflow verification
-- Cross-browser compatibility
+## Accuracy Boundaries
 
-## Deployment Considerations
+To keep this memory-bank reliable:
 
-### Environment Variables
-- Database connection settings
-- Application debug mode
-- Security configuration
-- Cache configuration
-
-### Production Setup
-- Debug mode disabled
-- Error reporting configured
-- Security headers enabled
-- Performance optimizations applied
-
-### Monitoring & Logging
-- Application logging through CakePHP
-- Error tracking and reporting
-- Performance monitoring
-- Security event logging
+- do not assume all tables use UUIDs
+- do not assume soft delete exists unless explicitly implemented
+- do not assume client-side validation exists unless code is present
+- prefer describing what is confirmed in the repository over generic CakePHP best practices
