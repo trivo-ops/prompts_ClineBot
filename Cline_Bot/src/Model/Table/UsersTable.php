@@ -41,7 +41,7 @@ class UsersTable extends Table
         $validator
             ->scalar('username')
             ->maxLength('username', 255)
-            ->allowEmptyString('username')
+            ->notEmptyString('username')
             ->add('username', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
 
         $validator
@@ -55,6 +55,20 @@ class UsersTable extends Table
             ->maxLength('password', 255)
             ->requirePresence('password', 'create')
             ->notEmptyString('password');
+
+        $validator
+            ->scalar('description')
+            ->maxLength('description', 500)
+            ->allowEmptyString('description');
+
+        $validator
+            ->scalar('avatar_path')
+            ->maxLength('avatar_path', 255)
+            ->allowEmptyString('avatar_path')
+            ->add('avatar_path', 'validUrl', [
+                'rule' => ['url', true],
+                'message' => 'Please provide a valid URL for the avatar.'
+            ]);
 
         return $validator;
     }

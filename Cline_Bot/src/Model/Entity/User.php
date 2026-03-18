@@ -19,6 +19,8 @@ class User extends Entity
         'username' => true,
         'email' => true,
         'password' => true,
+        'description' => true,
+        'avatar_path' => true,
         'created' => true,
         'modified' => true,
     ];

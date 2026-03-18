@@ -67,4 +67,36 @@ class UsersController extends AppController
         $user = $this->Authentication->getIdentity();
         $this->set(compact('user'));
     }
+
+    public function edit()
+    {
+        $this->viewBuilder()->setLayout('auth');
+        $userId = $this->Authentication->getIdentity()->getIdentifier();
+        $user = $this->Users->get($userId);
+
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            $data = $this->request->getData();
+
+            // Only allow updating username, description, and avatar_path
+            $allowedFields = ['username', 'description', 'avatar_path'];
+            $filteredData = [];
+            foreach ($allowedFields as $field) {
+                if (isset($data[$field])) {
+                    $filteredData[$field] = $data[$field];
+                }
+            }
+
+            $user = $this->Users->patchEntity($user, $filteredData);
+            if ($this->Users->save($user)) {
+                // Refresh the authentication identity to include updated data
+                $this->Authentication->setIdentity($user);
+
+                $this->Flash->success(__('Your profile has been updated.'));
+                return $this->redirect(['action' => 'dashboard']);
+            }
+            $this->Flash->error(__('Unable to update your profile. Please try again.'));
+        }
+
+        $this->set(compact('user'));
+    }
 }
