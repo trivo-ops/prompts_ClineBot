@@ -27,12 +27,7 @@ The project currently includes these completed areas:
 6. Existing product category text data was migrated toward the category-based structure.
 7. A required and unique `sku` field was added to Products through migration and validation updates.
 8. The memory-bank folder and its core files were created to preserve project knowledge.
-9. **Dashboard Profile Enhancement**: Added user profile display and editing functionality to the dashboard, including:
-   - Profile information display (username, email, description, avatar)
-   - Avatar image support with fallback to initials placeholder
-   - Profile editing form with validation
-   - Consistent styling with existing auth.css patterns
-   - Proper authorization and security measures
+9. Dashboard profile display and self-profile editing were added, including support for `description` and `avatar_path`.
 
 ## Active Decisions and Constraints
 
